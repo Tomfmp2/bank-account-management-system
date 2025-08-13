@@ -39,6 +39,7 @@ def  registrar_nombre():
                 return nombre        
 def registrar_contraseña():
     # Usuario ingresa la contraseña a crear             
+    limpiar()
     while True:
         contraseña = input("Ingrese una contraseña para la cuenta: ").strip()
         if not contraseña:
@@ -48,13 +49,13 @@ def registrar_contraseña():
             return contraseña
             
 def registro_numero_contacto():
-    limpiar()
-    print('-------------------------')
-    print('  1. Telefono Movil.  ')
-    print('  2. Tefono Fijo.     ')                                  
-    print('-------------------------')
-    tipo_contacto = input('Ingrese el tipo de contacto que desea registras: ')
-    while True:
+    while True:    
+        limpiar()
+        print('-------------------------')
+        print('  1. Telefono Movil.  ')
+        print('  2. Tefono Fijo. ')                                  
+        print('-------------------------')
+        tipo_contacto = input('Ingrese el tipo de contacto que desea registras: ')
         match tipo_contacto:
             case '1':
                 numero_contacto = input('Ingresa el numero de tu telefono movil: ')
@@ -76,9 +77,13 @@ def registro_numero_contacto():
                     continue
                 else:
                     return numero_contacto
+            case _:
+                print('El tipo de contacto no existe.')
+                continue
                 
                 
 def registrar_edad():
+    limpiar()
     while True:
         edad = input('Ingrese su edad: ')
         if not edad.strip():  # Si está vacío o solo espacios
@@ -91,6 +96,7 @@ def registrar_edad():
             return edad
             
 def registrar_documento():
+    limpiar()
     while True:
         cc = input('Ingrese su numero de cedula: ').strip()
         if not cc.isdigit():  # Si no son solo números
@@ -104,7 +110,7 @@ def registrar_email():
     while True:
         email = input('Ingrese un correo electronico: ')
         # Verificacion de correo electronico 
-        if '@gmail.com'or '@hotmail.com' in email and len(email) > 11:
+        if ('@gmail.com' in email or '@hotmail.com' in email) and len(email) > 11:
             print("Correo válido")
             return email
         else:
@@ -112,20 +118,32 @@ def registrar_email():
             continue
     
 def crear_cuenta():
-    nombre = registrar_nombre()
-    edad = registrar_edad()
-    documento = registrar_documento()
-    email = registrar_email()
-    numero_contacto = registro_numero_contacto()
     #crear una nueva cuenta bancaria.
     #adjuntar valores a los datos
-    datos = {'nombre','edad','email','cc','movil','fijo'}
-    valores = {nombre,edad,email,documento,numero_contacto}
-    cuenta_creada = dict(zip(datos,valores))
+    cuenta_creada = {
+        "nombre": registrar_nombre(),
+        "edad": registrar_edad(),
+        "cc": registrar_documento(),
+        "email": registrar_email(),
+        "numero_telefono": registro_numero_contacto(),
+        "saldo": 0.0
+    }
+
+    # Guardar la cuenta en el diccionario global usando la cédula como clave
+    cuentas_bancarias[cuenta_creada["cc"]] = cuenta_creada
+
+    print("\nCuenta creada con éxito:")
     print(cuenta_creada)
+    print(cuentas_bancarias)
     return cuenta_creada
 
-
+def depositar_dinero():
+    #solicitar cantidad deseada para agregar al salto de la cuenta
+    #actualizar el valor del saldo de la cuenta
+    cuenta = cuentas_bancarias[input("Ingrese su cedula: ")]
+    cantidad = float(input("Ingrese la cantidad a depositar: "))
+    cuenta["saldo"] += cantidad
+ 
 # Ciclo principal del programa
 while True:
     mostrar_menu_principal()
@@ -133,21 +151,9 @@ while True:
         opcion = input("Seleccione una opción: ")
         match opcion:
             case '1':
-                crear_otra_cuenta = 's'
-                while crear_otra_cuenta == 's':
-                        registrar_nombre()
-                        registrar_documento()
-                        registrar_edad()
-                        registrar_email()
-                        registro_numero_contacto()
-                        crear_cuenta()
-                        crear_mas_cuentas = input('¿Desea crear otra cuenta?: ').lower()
-                        if crear_mas_cuentas == 's':
-                            print('okey...')
-                        elif crear_mas_cuentas == 'n':
-                            break
-                        else:
-                            print('el dato ingresado no es correcto')
+                crear_cuenta()
+                print('Cuenta registrada exitosamente..') 
+                input('Precione cualquier tecla para continuar..')
             case '2':
                 pass
             case '3':
