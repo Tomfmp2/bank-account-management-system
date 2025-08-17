@@ -7,3 +7,4 @@ def limpiar():
 def precionar_continuar():
     # entrada para que el usuario pueda leer mensajes antes de ser limpiados por la siguiente seccion
     input('\nPresione cualquier tecla para continuar..')
+    limpiar()

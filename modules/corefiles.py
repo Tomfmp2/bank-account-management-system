@@ -1,12 +1,12 @@
 from modules.tools import limpiar,precionar_continuar
-from modules.data_manager import data_cuenta
-import os.path
+import os
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any, Union, Callable
 
 # almacena las cuentas bacarias registradas
 CUENTAS_BANCARIAS = "data/cuentas_registradas.json"
-reigistro_cuenta = data_cuenta()
+CUENTAS_CANCELADAS = "data/cuentas_canceladas.json"
+
 def read_json(file_path: str) -> Dict[str, Any]:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -50,22 +50,38 @@ def registrar_datos(
     datos_usuario_input: Union[Dict[str, Any], Callable[[], Dict[str, Any]]]
 ) -> Dict[str, Any]:
     """
-    Registra un usuario dentro del JSON usando 'cc' como clave.
+    Registra datos dentro del JSON.
     Acepta un diccionario o una función que devuelva un diccionario.
+    Para cuentas canceladas, usa la clave como viene.
+    Para cuentas normales, busca 'cc' dentro de los datos del usuario.
     """
     contenido = read_json(file_path)
     if not isinstance(contenido, dict):
         contenido = {}
 
-    # obtener el diccionario del usuario
+    # obtener el diccionario de datos
     data = datos_usuario_input() if callable(datos_usuario_input) else datos_usuario_input
 
     if not isinstance(data, dict):
         raise TypeError("datos_usuario_input debe ser un dict o una función que retorne un dict")
 
-    if "cc" not in data:
-        raise ValueError("El diccionario del usuario debe contener la clave 'cc'")
+    # Determinar la clave a usar
+    if len(data) == 1:
+        # Si hay solo una clave (como cancelacion_1), usar esa clave
+        clave = list(data.keys())[0]
+        contenido.update(data)
+    else:
+        # Buscar la clave 'cc' en la estructura de datos
+        cc = None
+        if 'cc' in data:
+            cc = data['cc']
+        elif 'usuario' in data and isinstance(data['usuario'], dict) and 'cc' in data['usuario']:
+            cc = data['usuario']['cc']
+        
+        if cc is None:
+            raise ValueError("No se pudo encontrar la cédula (cc) en los datos proporcionados")
+        
+        contenido[cc] = data
 
-    contenido[data["cc"]] = data
     write_json(file_path, contenido)
     return contenido
