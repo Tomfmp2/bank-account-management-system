@@ -51,7 +51,7 @@ Este proyecto corresponde a un **sistema bancario en entorno de consola** desarr
 # Estructura de Archivos
 
 ```
-📂 proyecto_banco/
+📂 bank-account-management-system/
 │── main.py                # Archivo principal, inicia la ejecución del sistema.
 │
 ├── modules/               # Módulos que contienen la lógica del sistema.
